@@ -24,12 +24,30 @@
       var distance, x, y;
       distance = delta * this.speed;
       y = distance * Math.sin(degsToRads(this.angle));
-      x = distance * Math.sin(degsToRads(90 - this.angle));
+      x = -(distance * Math.sin(degsToRads(90 - this.angle)));
       this.x += parseFloat(x.toFixed(2));
       this.y += parseFloat(y.toFixed(2));
       if (this.rightEdge() > this.bounds.rightEdge()) {
         this.x = this.bounds.rightEdge() - this.width;
       }
+      if (this.bottomEdge() > this.bounds.bottomEdge()) {
+        return this.y = this.bounds.bottomEdge() - this.height;
+      }
+    };
+
+    MoveableObject.prototype.moveUp = function(delta) {
+      var distance;
+      distance = delta * this.speed;
+      this.y = this.y + distance;
+      if (this.topEdge() < this.bounds.topEdge()) {
+        return this.y = this.bounds.topEdge();
+      }
+    };
+
+    MoveableObject.prototype.moveDown = function(delta) {
+      var distance;
+      distance = delta * this.speed;
+      this.y = this.y - distance;
       if (this.bottomEdge() > this.bounds.bottomEdge()) {
         return this.y = this.bounds.bottomEdge() - this.height;
       }
@@ -41,22 +59,29 @@
     };
 
     MoveableObject.prototype.reflect = function() {
-      if (this.angle > 0 && this.angle < 90 || this.angle > 180 && this.angle < 270) {
-        this.angle += 90;
-      } else if (this.angle > 90 && this.angle < 180 || this.angle > 270 && this.angle < 360) {
-        this.angle -= 90;
-      } else if (this.angle === 0 || this.angle === 180) {
-        this.angle += 180;
-      }
+      var b, n;
+      n = this.reflectNormalizer(this.angle);
+      b = 180 - (n.angle + 90);
+      this.angle = (b + n.changed) + 90;
       return this.cleanAngle();
     };
 
+    MoveableObject.prototype.reflectNormalizer = function(angle) {
+      var n;
+      n = {
+        angle: 0,
+        changed: 0
+      };
+      if (angle > 0 && angle < 90) n.changed = 0;
+      if (angle > 90 && angle < 180) n.changed = 180;
+      if (angle > 180 && angle < 270) n.changed = 180;
+      if (angle > 270 && angle < 360) n.changed = 360;
+      n.angle = angle - n.changed;
+      return n;
+    };
+
     MoveableObject.prototype.deflect = function() {
-      if (this.angle < 90 || (this.angle > 180 && this.angle < 270)) {
-        this.angle -= 90;
-      } else {
-        this.angle += 90;
-      }
+      this.angle = 360 - this.angle;
       return this.cleanAngle();
     };
 

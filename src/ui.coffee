@@ -1,4 +1,4 @@
-class @PongUi
+class @GameUi
   constructor: () ->
 
   render: (game) ->
@@ -7,6 +7,7 @@ class @PongUi
     @renderGeometricObject(game.paddleLeft, "blue")
     @renderGeometricObject(game.paddleRight, "blue")
     @renderGeometricObject(game.ball, "red")
+    @renderScore(game.score)
 
   renderGeometricObject: (geometricObject, color) ->
     div = $("<div/>")
@@ -16,4 +17,9 @@ class @PongUi
       .css("position", "absolute")
       .css("margin-top", geometricObject.y)
       .css("margin-left", geometricObject.x)
+    $("body").append(div)
+
+  renderScore:(score) ->
+    div = $("<div/>")
+      .html("Left: " + score.left + "<br> Right: " + score.right)
     $("body").append(div)

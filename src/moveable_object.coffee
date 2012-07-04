@@ -11,11 +11,23 @@ class @MoveableObject extends GeometricObject
   move: (delta) ->
     distance = delta * @speed
     y = distance * Math.sin(degsToRads(@angle))
-    x = distance * Math.sin(degsToRads(90 - @angle))
+    x = -(distance * Math.sin(degsToRads(90 - @angle)))
     @x += parseFloat(x.toFixed(2))
     @y += parseFloat(y.toFixed(2))
     if @rightEdge() > @bounds.rightEdge()
       @x = @bounds.rightEdge() - @width
+    if @bottomEdge() > @bounds.bottomEdge()
+      @y = @bounds.bottomEdge() - @height
+
+  moveUp: (delta) ->
+    distance = delta * @speed
+    @y = @y + distance
+    if @topEdge() < @bounds.topEdge()
+      @y = @bounds.topEdge()
+
+  moveDown: (delta) ->
+    distance = delta * @speed
+    @y = @y - distance
     if @bottomEdge() > @bounds.bottomEdge()
       @y = @bounds.bottomEdge() - @height
 
@@ -26,20 +38,29 @@ class @MoveableObject extends GeometricObject
 
   #deflect and reflect currently assume the object is in a box
   reflect: ->
-    if @angle > 0 && @angle < 90 || @angle > 180 && @angle < 270
-      @angle += 90
-    else if @angle > 90 && @angle < 180 || @angle > 270 && @angle < 360
-      @angle -= 90
-    else if @angle == 0 || @angle == 180
-      @angle += 180
+    n = @reflectNormalizer(@angle)
+    b =  180 - (n.angle + 90)
+    @angle = (b + n.changed) + 90
     @cleanAngle()
+
+  reflectNormalizer: (angle) ->
+    n =
+      angle: 0
+      changed: 0
+    if angle > 0 && angle < 90
+      n.changed = 0
+    if angle > 90 && angle < 180
+      n.changed = 180
+    if angle > 180 && angle < 270
+      n.changed = 180
+    if angle > 270 && angle < 360
+      n.changed = 360
+    n.angle = angle - n.changed
+    n
 
   # we're not handling the 90 or 270 cases because they should never happen in pong
   deflect: ->
-    if @angle < 90 || (@angle > 180 && @angle < 270)
-      @angle -= 90
-    else
-      @angle += 90
+    @angle = 360 - @angle
     @cleanAngle()
 
   cleanAngle: ->
