@@ -31,17 +31,18 @@ class @Pong
     if @ball.leftEdge() <= @ball.bounds.leftEdge() || @ball.rightEdge() >= @ball.bounds.rightEdge()
       @setGame()
 
-  detectWallCollision: ->
-    if @ball.topEdge() <= @ball.bounds.topEdge()
-      @ball.y = @ball.bounds.topEdge()
-      @ball.deflect()
-    if @ball.bottomEdge() >= @ball.bounds.bottomEdge()
-      @ball.y = @ball.bounds.bottomEdge() - @ball.height
-      @ball.deflect()
+  detectWallCollision: (obj) ->
+    if obj.topEdge() <= obj.bounds.topEdge()
+      obj.y = obj.bounds.topEdge()
+      obj.deflect()
+    if obj.bottomEdge() >= obj.bounds.bottomEdge()
+      obj.y = obj.bounds.bottomEdge() - obj.height
+      obj.deflect()
+
   moveBall: (delta) -> @ball.move(delta)
 
   tick: (delta) ->
     @moveBall(delta)
     @detectPaddleCollision()
-    @detectWallCollision()
+    @detectBoundaryCollision(@ball)
     @detectGoal()
